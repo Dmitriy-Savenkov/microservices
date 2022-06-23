@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/***
+ * Service for product
+ */
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -19,31 +23,22 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
+    /***
+     * Create a new product
+     * @param productRequest dto
+     */
     public void createProduct(ProductRequest productRequest) {
-        productRepository.save(mapRequestToProduct(productRequest));
+        productRepository.save(MapperUtils.mapProductRequestToProduct(productRequest));
         log.info("Product {} was saved", productRequest.getName());
     }
 
+    /***
+     * Create a new product
+     * @return List<ProductResponse> dto list
+     */
     public List<ProductResponse> getAllProducts() {
         List<Product> products = productRepository.findAll();
 
-        return products.stream().map(this::mapProductToResponse).collect(Collectors.toList());
-    }
-
-    private ProductResponse mapProductToResponse(Product product) {
-        return ProductResponse.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .build();
-    }
-
-    private Product mapRequestToProduct(ProductRequest productRequest) {
-        return Product.builder()
-                .name(productRequest.getName())
-                .description(productRequest.getDescription())
-                .price(productRequest.getPrice())
-                .build();
+        return products.stream().map(MapperUtils::mapProductToProductResponse).collect(Collectors.toList());
     }
 }

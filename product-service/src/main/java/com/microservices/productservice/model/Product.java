@@ -9,6 +9,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 
+/***
+ * Product entity
+ */
+
 @Document(value = "product")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,10 +20,25 @@ import java.math.BigDecimal;
 @Data
 public class Product {
 
+    /**
+     * Id
+     */
     @Id
     private String id;
+
+    /**
+     * Name
+     */
     private String name;
+
+    /**
+     * Description
+     */
     private String description;
+
+    /**
+     * Price
+     */
     private BigDecimal price;
 }
 
