@@ -1,6 +1,5 @@
 package com.microservices.orderservice.service;
 
-import com.microservices.orderservice.dto.OrderLineItemsDto;
 import com.microservices.orderservice.dto.OrderRequest;
 import com.microservices.orderservice.model.Order;
 import com.microservices.orderservice.model.OrderLineItems;
@@ -12,6 +11,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+/***
+ * Service for orders
+ */
 
 @Service
 @Slf4j
@@ -25,7 +28,7 @@ public class OrderService {
      */
     public void createOrder(OrderRequest orderRequest) {
         List<OrderLineItems> orderLineItemsList = orderRequest.getOrderLineItemsDtoList().stream()
-                .map(this::convertDtoToEntity)
+                .map(MapperUtils::convertDtoToEntity)
                 .collect(Collectors.toList());
 
         Order order = Order.builder()
@@ -35,19 +38,5 @@ public class OrderService {
 
         orderRepository.save(order);
         log.info("The order {} was successfully created", order.getId());
-    }
-
-    /**
-     * Convert dto to original entity
-     * @param dto OrderLineItemsDto
-     * @return OrderLineItems entity
-     */
-    private OrderLineItems convertDtoToEntity(OrderLineItemsDto dto) {
-        return OrderLineItems.builder()
-                .id(dto.getId())
-                .skuCode(dto.getSkuCode())
-                .price(dto.getPrice())
-                .quantity(dto.getQuantity())
-                .build();
     }
 }
