@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/***
+ * Service for orders
+ */
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
