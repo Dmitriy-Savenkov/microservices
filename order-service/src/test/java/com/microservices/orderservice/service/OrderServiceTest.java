@@ -1,5 +1,6 @@
 package com.microservices.orderservice.service;
 
+import com.microservices.orderservice.dto.InventoryResponse;
 import com.microservices.orderservice.dto.OrderLineItemsDto;
 import com.microservices.orderservice.dto.OrderRequest;
 import com.microservices.orderservice.model.Order;
@@ -18,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -25,16 +27,20 @@ class OrderServiceTest {
     @Mock
     private OrderRepository repository;
 
-    private static OrderService service;
+    @Mock
+    private RestClient requestSender;
+
+    private OrderService service;
 
     @Captor
     private ArgumentCaptor<Order> orderArgumentCaptor;
 
     private List<OrderLineItemsDto> lineItemsDtoList;
+    private InventoryResponse[] inventoryResponseArray;
 
     @BeforeEach
     void init() {
-        service = new OrderService(repository);
+        service = new OrderService(repository, requestSender);
 
         OrderLineItemsDto dto1 = OrderLineItemsDto.builder()
                 .id(1000L)
@@ -50,13 +56,21 @@ class OrderServiceTest {
                 .quantity(2)
                 .build();
 
+        InventoryResponse response = new InventoryResponse(dto1.getSkuCode(), true);
+        InventoryResponse response2 = new InventoryResponse(dto2.getSkuCode(), true);
+
         lineItemsDtoList = List.of(dto1, dto2);
+        inventoryResponseArray = new InventoryResponse[]{response, response2};
     }
 
     @Test
     @DisplayName("Should save an order to PostgresDB")
     void shouldSaveAnOrder() {
         OrderRequest request = new OrderRequest(lineItemsDtoList);
+        List<String> skuCodeList = lineItemsDtoList.stream().map(OrderLineItemsDto::getSkuCode).collect(Collectors.toList());
+
+        Mockito.when(requestSender.isInStock(skuCodeList)).thenReturn(inventoryResponseArray);
+
         service.createOrder(request);
 
         Mockito.verify(repository, Mockito.times(1)).save(orderArgumentCaptor.capture());
